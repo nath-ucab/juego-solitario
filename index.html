@@ -4,7 +4,254 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Solitario 2048</title>
-    <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* ============================================================
+           ESTILOS COMPLETOS DEL SOLITARIO 2048
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        #app {
+            max-width: 800px;
+            width: 100%;
+            background: #16213e;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            color: #e94560;
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 18px;
+        }
+
+        .score-container button {
+            background: #e94560;
+            border: none;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .score-container button:hover {
+            transform: scale(1.05);
+            background: #c73652;
+        }
+
+        .current-card-container {
+            text-align: center;
+            margin: 15px 0 25px;
+        }
+
+        .current-card-container p {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        /* ============================================================
+           ESTILOS DE CARTAS
+           ============================================================ */
+        .card {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 70px;
+            height: 100px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transition: 0.3s;
+            user-select: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background: #2d2d44;
+        }
+
+        /* Colores por valor */
+        .card-val-2 { background: #3b3b6b; }
+        .card-val-4 { background: #4a4a8a; }
+        .card-val-8 { background: #6a4a8a; }
+        .card-val-16 { background: #8a4a6a; }
+        .card-val-32 { background: #b04a5a; }
+        .card-val-64 { background: #d45a4a; }
+        .card-val-128 { background: #e08a3a; }
+        .card-val-256 { background: #e8b82a; }
+        .card-val-512 { background: #c8d42a; }
+        .card-val-1024 { background: #7ac84a; }
+        .card-val-2048 { background: #3ab87a; }
+
+        /* ============================================================
+           TABLERO
+           ============================================================ */
+        #board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .column {
+            background: #0f3460;
+            border-radius: 14px;
+            min-height: 450px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .column:hover {
+            border-color: #e94560;
+            background: #1a3f6a;
+        }
+
+        .column .card {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            animation: dropCard 0.25s ease-out;
+            font-size: 20px;
+        }
+
+        @keyframes dropCard {
+            0% {
+                transform: translateY(-40px);
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ============================================================
+           CARTA ACTUAL
+           ============================================================ */
+        #currentCard {
+            width: 90px;
+            height: 130px;
+            margin: 0 auto;
+            border-radius: 12px;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+            transition: 0.3s;
+            background: #2d2d44;
+        }
+
+        /* ============================================================
+           GAME OVER
+           ============================================================ */
+        #gameOverMessage {
+            text-align: center;
+            background: rgba(0,0,0,0.85);
+            padding: 30px;
+            border-radius: 16px;
+            margin-top: 25px;
+            border: 2px solid #e94560;
+        }
+
+        #gameOverMessage.hidden {
+            display: none !important;
+        }
+
+        #gameOverMessage h2 {
+            color: #e94560;
+            font-size: 32px;
+        }
+
+        #gameOverMessage button {
+            background: #e94560;
+            border: none;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: 0.3s;
+        }
+
+        #gameOverMessage button:hover {
+            transform: scale(1.05);
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 600px) {
+            #board {
+                gap: 8px;
+            }
+            .column {
+                min-height: 300px;
+                padding: 4px;
+            }
+            .column .card {
+                height: 45px;
+                font-size: 16px;
+            }
+            #currentCard {
+                width: 70px;
+                height: 100px;
+                font-size: 24px;
+            }
+            .card {
+                width: 50px;
+                height: 70px;
+                font-size: 18px;
+            }
+            header h1 {
+                font-size: 20px;
+            }
+            .score-container {
+                font-size: 14px;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -20,7 +267,7 @@
         <!-- Carta actual -->
         <div class="current-card-container">
             <p>Siguiente carta:</p>
-            <div id="currentCard" class="card">2</div>
+            <div id="currentCard">?</div>
         </div>
 
         <!-- Tablero de 4 columnas -->
@@ -39,6 +286,243 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // ============================================================
+        //  SOLITARIO 2048 - CÓDIGO COMPLETO
+        // ============================================================
+
+        console.log('🃏 Solitario 2048 iniciado');
+
+        // ============================================================
+        //  CONFIGURACIÓN
+        // ============================================================
+        const MAX_CARDS_PER_COLUMN = 8;
+        const WIN_VALUE = 2048;
+        const CARD_VALUES = [2, 4, 8, 16, 32];
+
+        // ============================================================
+        //  ESTADO DEL JUEGO
+        // ============================================================
+        let board = [
+            [], // columna 0
+            [], // columna 1
+            [], // columna 2
+            [], // columna 3
+        ];
+        let currentCard = 0;
+        let score = 0;
+        let gameOver = false;
+
+        // ============================================================
+        //  DOM REFERENCIAS
+        // ============================================================
+        const columnsEl = document.querySelectorAll('.column');
+        const currentCardEl = document.getElementById('currentCard');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const finalScoreSpan = document.getElementById('finalScore');
+        const gameOverMessage = document.getElementById('gameOverMessage');
+        const resetBtn = document.getElementById('resetBtn');
+        const restartFromGameOverBtn = document.getElementById('restartFromGameOverBtn');
+
+        // ============================================================
+        //  FUNCIONES PRINCIPALES
+        // ============================================================
+
+        function generateRandomCard() {
+            return CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
+        }
+
+        function getCardClass(value) {
+            return `card-val-${value}`;
+        }
+
+        function createCardElement(value) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `card ${getCardClass(value)}`;
+            cardDiv.textContent = value;
+            return cardDiv;
+        }
+
+        function render() {
+            // Dibujar columnas
+            columnsEl.forEach((colEl, colIndex) => {
+                const cards = board[colIndex];
+                colEl.innerHTML = '';
+                cards.forEach(value => {
+                    const cardDiv = createCardElement(value);
+                    colEl.appendChild(cardDiv);
+                });
+            });
+
+            // Dibujar carta actual
+            if (currentCard !== 0 && !gameOver) {
+                currentCardEl.textContent = currentCard;
+                currentCardEl.className = `card ${getCardClass(currentCard)}`;
+                currentCardEl.style.width = '90px';
+                currentCardEl.style.height = '130px';
+                currentCardEl.style.fontSize = '32px';
+                currentCardEl.style.boxShadow = '0 4px 20px rgba(233, 69, 96, 0.4)';
+            } else {
+                currentCardEl.textContent = gameOver ? '💀' : '?';
+                currentCardEl.className = 'card';
+                currentCardEl.style.background = '#2d2d44';
+                currentCardEl.style.width = '90px';
+                currentCardEl.style.height = '130px';
+                currentCardEl.style.fontSize = '32px';
+                currentCardEl.style.boxShadow = '0 4px 20px rgba(233, 69, 96, 0.4)';
+            }
+
+            // Actualizar puntuación
+            scoreDisplay.textContent = score;
+
+            // Mostrar/ocultar mensaje de game over
+            if (gameOver) {
+                finalScoreSpan.textContent = score;
+                gameOverMessage.classList.remove('hidden');
+            } else {
+                gameOverMessage.classList.add('hidden');
+            }
+        }
+
+        function isColumnFull(colIndex) {
+            return board[colIndex].length >= MAX_CARDS_PER_COLUMN;
+        }
+
+        function checkGameOver() {
+            for (let i = 0; i < board.length; i++) {
+                if (isColumnFull(i)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function placeCard(colIndex) {
+            if (gameOver) {
+                return false;
+            }
+            if (currentCard === 0) {
+                return false;
+            }
+            if (isColumnFull(colIndex)) {
+                alert('¡Esta columna está llena! Elige otra.');
+                return false;
+            }
+
+            // Colocar la carta
+            board[colIndex].push(currentCard);
+
+            // Intentar fusionar
+            mergeColumn(colIndex);
+
+            // Verificar si se alcanzó 2048
+            checkAndClearColumn(colIndex);
+
+            // Generar nueva carta
+            currentCard = generateRandomCard();
+
+            // Renderizar
+            render();
+
+            // Verificar game over
+            if (checkGameOver()) {
+                endGame();
+            }
+
+            return true;
+        }
+
+        function mergeColumn(colIndex) {
+            const col = board[colIndex];
+            let merged = false;
+
+            while (col.length >= 2) {
+                const top = col[col.length - 1];
+                const next = col[col.length - 2];
+
+                if (top === next) {
+                    const newValue = top + next;
+                    col.pop();
+                    col.pop();
+                    col.push(newValue);
+                    score += newValue;
+                    merged = true;
+                } else {
+                    break;
+                }
+            }
+            return merged;
+        }
+
+        function checkAndClearColumn(colIndex) {
+            const col = board[colIndex];
+            for (let i = 0; i < col.length; i++) {
+                if (col[i] === WIN_VALUE) {
+                    board[colIndex] = [];
+                    score += 500;
+                    render();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function endGame() {
+            gameOver = true;
+            finalScoreSpan.textContent = score;
+            gameOverMessage.classList.remove('hidden');
+            currentCard = 0;
+            render();
+        }
+
+        function resetGame() {
+            board = [
+                [],
+                [],
+                [],
+                []
+            ];
+            score = 0;
+            gameOver = false;
+            gameOverMessage.classList.add('hidden');
+            currentCard = generateRandomCard();
+            render();
+        }
+
+        // ============================================================
+        //  EVENTOS
+        // ============================================================
+
+        columnsEl.forEach((colEl, index) => {
+            colEl.addEventListener('click', function() {
+                placeCard(index);
+            });
+        });
+
+        resetBtn.addEventListener('click', resetGame);
+        restartFromGameOverBtn.addEventListener('click', resetGame);
+
+        // ============================================================
+        //  INICIALIZACIÓN
+        // ============================================================
+
+        function init() {
+            board = [
+                [],
+                [],
+                [],
+                []
+            ];
+            score = 0;
+            gameOver = false;
+            gameOverMessage.classList.add('hidden');
+            currentCard = generateRandomCard();
+            render();
+            console.log('✅ Juego inicializado correctamente');
+            console.log('🃏 Primera carta:', currentCard);
+        }
+
+        init();
+    </script>
 </body>
 </html>
