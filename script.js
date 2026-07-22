@@ -38,28 +38,59 @@ function generateRandomCard() {
     return CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
 }
 
+// Devuelve la ruta de la imagen según el valor
+function getCardImage(value) {
+    // Mapeo de valores a nombres de archivo
+    const imageMap = {
+        2: 'carta1.png',
+        4: 'carta2.png',
+        8: 'carta3.png',
+        16: 'carta4.png',
+        32: 'carta5.png',
+        64: 'carta6.png',
+        128: 'carta7.png',
+        256: 'carta8.png',
+        512: 'carta9.png',
+        1024: 'carta10.png',
+        2048: 'carta11.png'
+    };
+    
+    if (imageMap[value]) {
+        return `img/${imageMap[value]}`;
+    }
+    return `img/carta12.png`;
+}
+
 // Actualiza la interfaz con el estado actual
 function render() {
     // Dibujar columnas
     columnsEl.forEach((colEl, colIndex) => {
         const cards = board[colIndex];
-        // Limpiar columna (excepto el placeholder visual)
         colEl.innerHTML = '';
-        // Dibujar cada carta de abajo hacia arriba (en orden)
         cards.forEach(value => {
             const cardDiv = document.createElement('div');
-            cardDiv.className = `card card-${value}`;
-            cardDiv.textContent = value;
+            cardDiv.className = 'card';
+            
+            const img = document.createElement('img');
+            img.src = getCardImage(value);
+            img.alt = `Carta ${value}`;
+            img.draggable = false;
+            
+            cardDiv.appendChild(img);
             colEl.appendChild(cardDiv);
         });
     });
 
     // Dibujar carta actual
     if (currentCard !== 0) {
-        currentCardEl.textContent = currentCard;
-        currentCardEl.className = `card card-${currentCard}`;
+        currentCardEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = getCardImage(currentCard);
+        img.alt = `Carta ${currentCard}`;
+        img.draggable = false;
+        currentCardEl.appendChild(img);
+        currentCardEl.className = 'card';
     } else {
-        // Si no hay carta, mostramos un placeholder
         currentCardEl.textContent = '?';
         currentCardEl.className = 'card';
     }
@@ -75,7 +106,6 @@ function isColumnFull(colIndex) {
 
 // Verifica si el juego ha terminado
 function checkGameOver() {
-    // Si alguna columna está llena, es game over
     for (let i = 0; i < board.length; i++) {
         if (isColumnFull(i)) {
             return true;
@@ -87,41 +117,22 @@ function checkGameOver() {
 // Intenta colocar la carta en la columna seleccionada
 function placeCard(colIndex) {
     if (gameOver) return false;
-    if (currentCard === 0) {
-        // Si no hay carta, no hacer nada (esto no debería pasar)
-        return false;
-    }
+    if (currentCard === 0) return false;
     if (isColumnFull(colIndex)) {
         alert('¡Esta columna está llena! Elige otra.');
         return false;
     }
 
-    // 1. Agregar la carta al final (arriba) de la columna
     board[colIndex].push(currentCard);
-
-    // 2. Intentar fusionar recursivamente desde el final
-    let merged = mergeColumn(colIndex);
-
-    // 3. Si hubo fusión, sumar puntos
-    if (merged) {
-        // La función mergeColumn ya suma puntos internamente
-    }
-
-    // 4. Limpiar columna si alcanzó 2048
+    mergeColumn(colIndex);
     checkAndClearColumn(colIndex);
-
-    // 5. Generar nueva carta
     currentCard = generateRandomCard();
-
-    // 6. Renderizar
     render();
 
-    // 7. Verificar game over
     if (checkGameOver()) {
         endGame();
         return true;
     }
-
     return true;
 }
 
@@ -130,28 +141,21 @@ function mergeColumn(colIndex) {
     const col = board[colIndex];
     let merged = false;
 
-    // Mientras haya al menos 2 cartas y la última sea igual a la anterior
     while (col.length >= 2) {
         const top = col[col.length - 1];
         const next = col[col.length - 2];
 
         if (top === next) {
-            // Fusionar: sumar los valores
             const newValue = top + next;
-            // Eliminar las dos últimas
             col.pop();
             col.pop();
-            // Agregar la nueva
             col.push(newValue);
-            // Sumar puntos (el valor fusionado)
             score += newValue;
             merged = true;
-            // Continuamos el ciclo para ver si hay más fusiones
         } else {
             break;
         }
     }
-
     return merged;
 }
 
@@ -160,9 +164,7 @@ function checkAndClearColumn(colIndex) {
     const col = board[colIndex];
     for (let i = 0; i < col.length; i++) {
         if (col[i] === WIN_VALUE) {
-            // Limpiar la columna
             board[colIndex] = [];
-            // Bonus de puntos (opcional)
             score += 500;
             render();
             return true;
@@ -182,12 +184,7 @@ function endGame() {
 
 // Reiniciar el juego
 function resetGame() {
-    board = [
-        [],
-        [],
-        [],
-        [],
-    ];
+    board = [[], [], [], []];
     score = 0;
     gameOver = false;
     gameOverMessage.classList.add('hidden');
@@ -199,14 +196,12 @@ function resetGame() {
 //  EVENTOS
 // ============================================================
 
-// Click en columna
 columnsEl.forEach((colEl, index) => {
     colEl.addEventListener('click', () => {
         placeCard(index);
     });
 });
 
-// Botón reiniciar
 resetBtn.addEventListener('click', resetGame);
 restartFromGameOverBtn.addEventListener('click', resetGame);
 
