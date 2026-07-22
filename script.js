@@ -8,12 +8,7 @@ const CARD_VALUES = [2, 4, 8, 16, 32];
 // ============================================================
 //  ESTADO DEL JUEGO
 // ============================================================
-let board = [
-    [], // columna 0
-    [], // columna 1
-    [], // columna 2
-    [], // columna 3
-];
+let board = [[], [], [], []];
 let currentCard = 0;
 let score = 0;
 let gameOver = false;
@@ -33,12 +28,10 @@ const restartFromGameOverBtn = document.getElementById('restartFromGameOverBtn')
 //  FUNCIONES PRINCIPALES
 // ============================================================
 
-// Genera una carta aleatoria
 function generateRandomCard() {
     return CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
 }
 
-// Devuelve la ruta de la imagen según el valor
 function getCardImage(value) {
     const imageMap = {
         2: 'carta1.png',
@@ -60,9 +53,8 @@ function getCardImage(value) {
     return `img/cartas/carta12.png`;
 }
 
-// Actualiza la interfaz con el estado actual
 function render() {
-    // Verificar game over ANTES de renderizar
+    // Ocultar/mostrar mensaje de game over
     if (gameOver) {
         finalScoreSpan.textContent = score;
         gameOverMessage.classList.remove('hidden');
@@ -103,16 +95,13 @@ function render() {
         currentCardEl.className = 'card';
     }
 
-    // Actualizar puntuación
     scoreDisplay.textContent = score;
 }
 
-// Verifica si una columna está llena (derrota)
 function isColumnFull(colIndex) {
     return board[colIndex].length >= MAX_CARDS_PER_COLUMN;
 }
 
-// Verifica si el juego ha terminado
 function checkGameOver() {
     for (let i = 0; i < board.length; i++) {
         if (isColumnFull(i)) {
@@ -122,7 +111,6 @@ function checkGameOver() {
     return false;
 }
 
-// Intenta colocar la carta en la columna seleccionada
 function placeCard(colIndex) {
     if (gameOver) return false;
     if (currentCard === 0) return false;
@@ -144,7 +132,6 @@ function placeCard(colIndex) {
     return true;
 }
 
-// Fusiona recursivamente desde el final de la columna
 function mergeColumn(colIndex) {
     const col = board[colIndex];
     let merged = false;
@@ -167,7 +154,6 @@ function mergeColumn(colIndex) {
     return merged;
 }
 
-// Si la columna tiene 2048, se limpia completamente
 function checkAndClearColumn(colIndex) {
     const col = board[colIndex];
     for (let i = 0; i < col.length; i++) {
@@ -181,7 +167,6 @@ function checkAndClearColumn(colIndex) {
     return false;
 }
 
-// Termina el juego
 function endGame() {
     gameOver = true;
     finalScoreSpan.textContent = score;
@@ -190,7 +175,6 @@ function endGame() {
     render();
 }
 
-// Reiniciar el juego
 function resetGame() {
     board = [[], [], [], []];
     score = 0;
