@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solitario 2048</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <h1>🃏 Solitario 2048</h1>
+            <div class="score-container">
+                <span>Puntuación: <strong id="scoreDisplay">0</strong></span>
+                <button id="resetBtn">🔄 Reiniciar</button>
+            </div>
+        </header>
+
+        <!-- Carta actual -->
+        <div class="current-card-container">
+            <p>Siguiente carta:</p>
+            <div id="currentCard" class="card">2</div>
+        </div>
+
+        <!-- Tablero de 4 columnas -->
+        <div id="board">
+            <div class="column" data-col="0"></div>
+            <div class="column" data-col="1"></div>
+            <div class="column" data-col="2"></div>
+            <div class="column" data-col="3"></div>
+        </div>
+
+        <!-- Mensaje de fin de juego -->
+        <div id="gameOverMessage" class="hidden">
+            <h2>💀 ¡Perdiste!</h2>
+            <p>Puntuación final: <span id="finalScore">0</span></p>
+            <button id="restartFromGameOverBtn">🔄 Jugar de nuevo</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
