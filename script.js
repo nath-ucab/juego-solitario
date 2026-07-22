@@ -1,4 +1,8 @@
 // ============================================================
+//  SOLITARIO 2048 - VERSIÓN CORREGIDA
+// ============================================================
+
+// ============================================================
 //  CONFIGURACIÓN
 // ============================================================
 const MAX_CARDS_PER_COLUMN = 8;
@@ -8,7 +12,12 @@ const CARD_VALUES = [2, 4, 8, 16, 32];
 // ============================================================
 //  ESTADO DEL JUEGO
 // ============================================================
-let board = [[], [], [], []];
+let board = [
+    [], // columna 0
+    [], // columna 1
+    [], // columna 2
+    [], // columna 3
+];
 let currentCard = 0;
 let score = 0;
 let gameOver = false;
@@ -28,11 +37,32 @@ const restartFromGameOverBtn = document.getElementById('restartFromGameOverBtn')
 //  FUNCIONES PRINCIPALES
 // ============================================================
 
+// Genera una carta aleatoria
 function generateRandomCard() {
     return CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
 }
 
+// Devuelve el color según el valor (fallback si no hay imágenes)
+function getCardColor(value) {
+    const colors = {
+        2: '#3b3b6b',
+        4: '#4a4a8a',
+        8: '#6a4a8a',
+        16: '#8a4a6a',
+        32: '#b04a5a',
+        64: '#d45a4a',
+        128: '#e08a3a',
+        256: '#e8b82a',
+        512: '#c8d42a',
+        1024: '#7ac84a',
+        2048: '#3ab87a'
+    };
+    return colors[value] || '#2d2d44';
+}
+
+// Devuelve la ruta de la imagen según el valor
 function getCardImage(value) {
+    // Mapeo de valores a nombres de archivo
     const imageMap = {
         2: 'carta1.png',
         4: 'carta2.png',
@@ -50,32 +80,57 @@ function getCardImage(value) {
     if (imageMap[value]) {
         return `img/cartas/${imageMap[value]}`;
     }
-    return `img/cartas/carta12.png`;
+    return null;
 }
 
-function render() {
-    // Ocultar/mostrar mensaje de game over
-    if (gameOver) {
-        finalScoreSpan.textContent = score;
-        gameOverMessage.classList.remove('hidden');
+// Crea un elemento carta (con imagen o con número)
+function createCardElement(value) {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = `card`;
+    
+    // Intentar cargar imagen
+    const imgPath = getCardImage(value);
+    if (imgPath) {
+        const img = document.createElement('img');
+        img.src = imgPath;
+        img.alt = `Carta ${value}`;
+        img.draggable = false;
+        img.onerror = function() {
+            // Si la imagen no carga, mostrar número con color
+            this.style.display = 'none';
+            cardDiv.textContent = value;
+            cardDiv.style.background = getCardColor(value);
+            cardDiv.style.color = '#ffffff';
+            cardDiv.style.display = 'flex';
+            cardDiv.style.alignItems = 'center';
+            cardDiv.style.justifyContent = 'center';
+            cardDiv.style.fontSize = '24px';
+            cardDiv.style.fontWeight = 'bold';
+        };
+        cardDiv.appendChild(img);
     } else {
-        gameOverMessage.classList.add('hidden');
+        // Si no hay imagen, mostrar número con color
+        cardDiv.textContent = value;
+        cardDiv.style.background = getCardColor(value);
+        cardDiv.style.color = '#ffffff';
+        cardDiv.style.display = 'flex';
+        cardDiv.style.alignItems = 'center';
+        cardDiv.style.justifyContent = 'center';
+        cardDiv.style.fontSize = '24px';
+        cardDiv.style.fontWeight = 'bold';
     }
+    
+    return cardDiv;
+}
 
+// Actualiza la interfaz con el estado actual
+function render() {
     // Dibujar columnas
     columnsEl.forEach((colEl, colIndex) => {
         const cards = board[colIndex];
         colEl.innerHTML = '';
         cards.forEach(value => {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'card';
-            
-            const img = document.createElement('img');
-            img.src = getCardImage(value);
-            img.alt = `Carta ${value}`;
-            img.draggable = false;
-            
-            cardDiv.appendChild(img);
+            const cardDiv = createCardElement(value);
             colEl.appendChild(cardDiv);
         });
     });
@@ -83,25 +138,42 @@ function render() {
     // Dibujar carta actual
     if (currentCard !== 0 && !gameOver) {
         currentCardEl.innerHTML = '';
-        const img = document.createElement('img');
-        img.src = getCardImage(currentCard);
-        img.alt = `Carta ${currentCard}`;
-        img.draggable = false;
-        currentCardEl.appendChild(img);
+        const cardDiv = createCardElement(currentCard);
+        cardDiv.style.width = '100%';
+        cardDiv.style.height = '100%';
+        currentCardEl.appendChild(cardDiv);
         currentCardEl.className = 'card';
+        currentCardEl.style.background = 'transparent';
+        currentCardEl.style.boxShadow = '0 4px 20px rgba(233, 69, 96, 0.4)';
     } else {
         currentCardEl.innerHTML = '';
         currentCardEl.textContent = gameOver ? '💀' : '?';
         currentCardEl.className = 'card';
+        currentCardEl.style.background = '#2d2d44';
+        currentCardEl.style.display = 'flex';
+        currentCardEl.style.alignItems = 'center';
+        currentCardEl.style.justifyContent = 'center';
+        currentCardEl.style.fontSize = '28px';
     }
 
+    // Actualizar puntuación
     scoreDisplay.textContent = score;
+    
+    // Mostrar/ocultar mensaje de game over
+    if (gameOver) {
+        finalScoreSpan.textContent = score;
+        gameOverMessage.classList.remove('hidden');
+    } else {
+        gameOverMessage.classList.add('hidden');
+    }
 }
 
+// Verifica si una columna está llena (derrota)
 function isColumnFull(colIndex) {
     return board[colIndex].length >= MAX_CARDS_PER_COLUMN;
 }
 
+// Verifica si el juego ha terminado
 function checkGameOver() {
     for (let i = 0; i < board.length; i++) {
         if (isColumnFull(i)) {
@@ -111,6 +183,7 @@ function checkGameOver() {
     return false;
 }
 
+// Intenta colocar la carta en la columna seleccionada
 function placeCard(colIndex) {
     if (gameOver) return false;
     if (currentCard === 0) return false;
@@ -132,6 +205,7 @@ function placeCard(colIndex) {
     return true;
 }
 
+// Fusiona recursivamente desde el final de la columna
 function mergeColumn(colIndex) {
     const col = board[colIndex];
     let merged = false;
@@ -154,6 +228,7 @@ function mergeColumn(colIndex) {
     return merged;
 }
 
+// Si la columna tiene 2048, se limpia completamente
 function checkAndClearColumn(colIndex) {
     const col = board[colIndex];
     for (let i = 0; i < col.length; i++) {
@@ -167,6 +242,7 @@ function checkAndClearColumn(colIndex) {
     return false;
 }
 
+// Termina el juego
 function endGame() {
     gameOver = true;
     finalScoreSpan.textContent = score;
@@ -175,6 +251,7 @@ function endGame() {
     render();
 }
 
+// Reiniciar el juego
 function resetGame() {
     board = [[], [], [], []];
     score = 0;
@@ -210,3 +287,5 @@ function init() {
 }
 
 init();
+
+console.log('🃏 Solitario 2048 cargado correctamente');
