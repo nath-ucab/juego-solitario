@@ -40,7 +40,6 @@ function generateRandomCard() {
 
 // Devuelve la ruta de la imagen según el valor
 function getCardImage(value) {
-    // Mapeo de valores a nombres de archivo
     const imageMap = {
         2: 'carta1.png',
         4: 'carta2.png',
@@ -56,13 +55,21 @@ function getCardImage(value) {
     };
     
     if (imageMap[value]) {
-        return `img/${imageMap[value]}`;
+        return `img/cartas/${imageMap[value]}`;
     }
-    return `img/carta12.png`;
+    return `img/cartas/carta12.png`;
 }
 
 // Actualiza la interfaz con el estado actual
 function render() {
+    // Verificar game over ANTES de renderizar
+    if (gameOver) {
+        finalScoreSpan.textContent = score;
+        gameOverMessage.classList.remove('hidden');
+    } else {
+        gameOverMessage.classList.add('hidden');
+    }
+
     // Dibujar columnas
     columnsEl.forEach((colEl, colIndex) => {
         const cards = board[colIndex];
@@ -82,7 +89,7 @@ function render() {
     });
 
     // Dibujar carta actual
-    if (currentCard !== 0) {
+    if (currentCard !== 0 && !gameOver) {
         currentCardEl.innerHTML = '';
         const img = document.createElement('img');
         img.src = getCardImage(currentCard);
@@ -91,7 +98,8 @@ function render() {
         currentCardEl.appendChild(img);
         currentCardEl.className = 'card';
     } else {
-        currentCardEl.textContent = '?';
+        currentCardEl.innerHTML = '';
+        currentCardEl.textContent = gameOver ? '💀' : '?';
         currentCardEl.className = 'card';
     }
 
@@ -209,6 +217,10 @@ restartFromGameOverBtn.addEventListener('click', resetGame);
 //  INICIALIZACIÓN
 // ============================================================
 function init() {
+    board = [[], [], [], []];
+    score = 0;
+    gameOver = false;
+    gameOverMessage.classList.add('hidden');
     currentCard = generateRandomCard();
     render();
 }
