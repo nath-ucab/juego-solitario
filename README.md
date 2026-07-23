@@ -29,7 +29,7 @@ A diferencia del 2048 clásico, aquí el jugador recibe una carta a la vez (como
 
 ---
 
-## 📋 Características
+##  Características
 
 ###  Interfaz de Usuario
 - 4 columnas verticales claramente definidas
